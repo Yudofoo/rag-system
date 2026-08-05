@@ -1,0 +1,65 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./volumes/ollama:/root/.ollama
+    restart: unless-stopped
+
+  chroma:
+    image: chromadb/chroma:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./volumes/chroma:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./volumes/uploads:/uploads
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - CHROMA_URL=http://chroma:8000
+      - REDIS_URL=redis://redis:6379
+      - UPLOAD_DIR=/uploads
+    depends_on:
+      - ollama
+      - chroma
+      - redis
+    restart: unless-stopped
+
+  worker:
+    build: ./worker
+    volumes:
+      - ./volumes/uploads:/uploads
+    environment:
+      - CHROMA_URL=http://chroma:8000
+      - REDIS_URL=redis://redis:6379
+      - UPLOAD_DIR=/uploads
+    depends_on:
+      - chroma
+      - redis
+    restart: unless-stopped
+
+  streamlit:
+    build: ./streamlit
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:8080
+    depends_on:
+      - api
+    restart: unless-stopped
