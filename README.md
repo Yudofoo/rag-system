@@ -28,6 +28,7 @@
 
 - **api / worker を分離**: ドキュメントのパース・埋め込み生成は時間がかかるため、Redisキュー経由の非同期処理にして、アップロードAPIがブロックしないようにしています
 - **CPU / GPU 切り替え可能**: `EMBEDDING_DEVICE` 環境変数で切り替え。開発機（CPU）と本番GPUサーバーを同じコードベースで動かせます
+- **Ollamaのモデルデータはnamed volume**: bind mount（`./volumes/...`）だとWindows/Docker Desktop環境でホストOS⇄WSL2間のファイルI/Oが遅く、9GBのモデルロードに3分以上かかり読み込み中に接続断でロード失敗することもあった。named volume（WSL2内のネイティブファイルシステムに保存）に切り替えたところ、同じモデルのロードが2.8秒まで短縮した
 
 ## 起動方法
 
@@ -74,13 +75,14 @@ rag-system/
 ├── api/          FastAPI（RAGロジック）
 ├── worker/       文書処理ワーカー（Redisキューを監視、非同期でパース・埋め込み）
 ├── streamlit/    UI
-├── volumes/      データ永続化（Git管理外）
+├── volumes/      データ永続化（Git管理外、Ollamaモデルは含まない）
 │   ├── chroma/   ChromaDB
-│   ├── uploads/  アップロードファイル
-│   └── ollama/   LLMモデル
+│   └── uploads/  アップロードファイル
 ├── docker-compose.yml
 └── docker-compose.gpu.yml  Windows GPU用
 ```
+
+Ollamaのモデルデータは `ollama_data` という named volume で管理（`docker volume ls` で確認可能）。理由は上記アーキテクチャ節を参照。
 
 ## ライセンス
 MIT License. 詳細は [LICENSE](./LICENSE) を参照してください。

@@ -4,7 +4,7 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ./volumes/ollama:/root/.ollama
+      - ollama_data:/root/.ollama
     restart: unless-stopped
 
   chroma:
@@ -67,3 +67,6 @@ services:
     depends_on:
       - api
     restart: unless-stopped
+
+volumes:
+  ollama_data:
