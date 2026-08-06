@@ -17,11 +17,13 @@ log = logging.getLogger(__name__)
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379")
 CHROMA_URL = os.getenv("CHROMA_URL", "http://chroma:8000")
 COLLECTION_NAME = "documents"
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
+EMBEDDING_DEVICE = os.getenv("EMBEDDING_DEVICE", "cpu")
 
 def get_embedding_model():
     return HuggingFaceEmbeddings(
-        model_name="BAAI/bge-m3",
-        model_kwargs={"device": "cpu"},
+        model_name=EMBEDDING_MODEL,
+        model_kwargs={"device": EMBEDDING_DEVICE},
         encode_kwargs={"normalize_embeddings": True},
     )
 
@@ -65,6 +67,12 @@ def process_job(job: dict, embedding_model, collection):
         }
         for i, c in enumerate(chunks)
     ]
+
+    # 同名ファイルが既に登録されていれば旧チャンクを削除（改定版で上書き）
+    existing = collection.get(where={"filename": filename})
+    if existing["ids"]:
+        collection.delete(ids=existing["ids"])
+        log.info(f"旧版を削除: {filename} → {len(existing['ids'])}チャンク")
 
     collection.add(ids=ids, embeddings=embeddings, documents=texts, metadatas=metadatas)
     log.info(f"完了: {filename} → {len(chunks)}チャンク追加")

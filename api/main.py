@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routers import query, ingest, documents
+from routers import query, ingest, documents
 
 app = FastAPI(title="RAG API", version="1.0.0")
 

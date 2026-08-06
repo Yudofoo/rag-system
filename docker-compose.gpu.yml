@@ -7,3 +7,14 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+
+  worker:
+    environment:
+      - EMBEDDING_DEVICE=cuda
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

@@ -8,7 +8,7 @@ services:
     restart: unless-stopped
 
   chroma:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.5.15
     ports:
       - "8000:8000"
     volumes:
@@ -35,6 +35,8 @@ services:
       - CHROMA_URL=http://chroma:8000
       - REDIS_URL=redis://redis:6379
       - UPLOAD_DIR=/uploads
+      - EMBEDDING_MODEL=BAAI/bge-m3
+      - EMBEDDING_DEVICE=cpu
     depends_on:
       - ollama
       - chroma
@@ -49,6 +51,8 @@ services:
       - CHROMA_URL=http://chroma:8000
       - REDIS_URL=redis://redis:6379
       - UPLOAD_DIR=/uploads
+      - EMBEDDING_MODEL=BAAI/bge-m3
+      - EMBEDDING_DEVICE=cpu
     depends_on:
       - chroma
       - redis

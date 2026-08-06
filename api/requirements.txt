@@ -1,3 +1,4 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi==0.115.0
 uvicorn==0.30.6
 langchain==0.3.0
@@ -5,5 +6,6 @@ langchain-community==0.3.0
 langchain-ollama==0.2.0
 chromadb==0.5.15
 sentence-transformers==3.1.1
+torch
 redis==5.1.0
 python-multipart==0.0.12

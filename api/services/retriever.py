@@ -5,7 +5,9 @@ import os
 
 CHROMA_URL = os.getenv("CHROMA_URL", "http://chroma:8000")
 COLLECTION_NAME = "documents"
-SIMILARITY_THRESHOLD = 0.7  # これ以下のコサイン類似度は除外
+SIMILARITY_THRESHOLD = 0.3  # これ以下のコサイン類似度は除外（無関係クエリ0.18-0.24 / 関連クエリ0.40-0.45で実測し、境界に設定）
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
+EMBEDDING_DEVICE = os.getenv("EMBEDDING_DEVICE", "cpu")
 
 _embedding_model = None
 
@@ -13,8 +15,8 @@ def get_embedding_model():
     global _embedding_model
     if _embedding_model is None:
         _embedding_model = HuggingFaceEmbeddings(
-            model_name="BAAI/bge-m3",
-            model_kwargs={"device": "cpu"},
+            model_name=EMBEDDING_MODEL,
+            model_kwargs={"device": EMBEDDING_DEVICE},
             encode_kwargs={"normalize_embeddings": True},
         )
     return _embedding_model
