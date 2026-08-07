@@ -30,6 +30,7 @@ services:
       - "8080:8080"
     volumes:
       - ./volumes/uploads:/uploads
+      - hf_cache:/root/.cache/huggingface
     environment:
       - OLLAMA_URL=http://ollama:11434
       - CHROMA_URL=http://chroma:8000
@@ -47,6 +48,7 @@ services:
     build: ./worker
     volumes:
       - ./volumes/uploads:/uploads
+      - hf_cache:/root/.cache/huggingface
     environment:
       - CHROMA_URL=http://chroma:8000
       - REDIS_URL=redis://redis:6379
@@ -70,3 +72,4 @@ services:
 
 volumes:
   ollama_data:
+  hf_cache:
